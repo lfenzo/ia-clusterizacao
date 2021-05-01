@@ -1,14 +1,13 @@
+import random
 import numpy as np
 
 from utils import dist
-from random import randint
 
 class KMeansClustering(object):
 
     def __init__(self, data):
         self._centroids = None
         self._data = data[['d1', 'd2']].values
-        self._labels = data[['sample_label']]
 
     def fit(self, k: int, max_iter = 20):
         """
@@ -18,7 +17,7 @@ class KMeansClustering(object):
         -------------
 
         `k`: número de clusters a serem formados nos dados.
-        `max_iter`: número de iteração a serem realizadas no algoritmo. Default = 20.
+        `max_iter`: número de iterações a serem realizadas no algoritmo. Default = 20.
         """
 
         if not k >= 2:
@@ -28,7 +27,7 @@ class KMeansClustering(object):
         if self._centroids != None:
             self._centroids = None
 
-        self.get_initial_centroids(k = k, size = len(self._data))
+        self.set_initial_centroids(k = k, size = len(self._data))
 
         # inicializa os clusters (inicialmente todos estão vazios)
         cluster_objects = {c: [] for c in range(k)}
@@ -48,25 +47,20 @@ class KMeansClustering(object):
 
         return self._centroids
 
-    def get_initial_centroids(self, k, size):
+    def set_initial_centroids(self, k, size):
         """
         Obtém os centroides iniciais escolhendo aleatoriamente uma objeto para cada
         centroide.
         """
 
-        initial_indexes = []
-
-        while len(initial_indexes) < k:
-            new_index = randint(0, size)
-            if new_index not in initial_indexes:
-                initial_indexes.append(new_index)
-
-        self._centroids = [self._data[i] for i in initial_indexes]
+        self._centroids = [self._data[i] for i in random.sample(range(0, size), k)]
 
     def predict(self, data):
         """
         Associa cada um dos objetos passados em `data` a um dos `k` clusters.
-        Retorna um array contendo 
+
+        Retorna um array contendo ´len(data)` elementos indicando a classe de
+        cada um dos objetos.
         """
 
         if self._centroids is None:
@@ -81,15 +75,18 @@ class KMeansClustering(object):
 
         return correspondent_cluster
 
-    def get_centroids(self):
-        return self._centroids
-
     def update_centroids(self, cluster_objects):
+        """
+        Atualiza os centroides calculando a média de cada um dos atributos
+        para todos os elementos que estão em cada cluster.
+        """
+
         for idx in cluster_objects.keys():
             self._centroids[idx] = np.mean(cluster_objects[idx], axis = 0)
 
-    def set_initial_centroids(self, indexes):
-        self._centroids = [self._data[i] for i in indexes]
+    def get_centroids(self):
+        return self._centroids
+
 
     def get_data(self):
             return self._data
