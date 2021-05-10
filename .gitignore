@@ -1,0 +1,7 @@
+
+
+# pasta do cache dos pacotes locais
+__pycache__/
+
+# imagens
+*.jpeg
