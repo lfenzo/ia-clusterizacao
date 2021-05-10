@@ -5,11 +5,11 @@ from utils import dist
 
 class KMeansClustering(object):
 
-    def __init__(self, data):
+    def __init__(self, max_iter = 20):
         self._centroids = None
-        self._data = data[['d1', 'd2']].values
+        self._max_iter = max_iter
 
-    def fit(self, k: int, max_iter = 20):
+    def fit(self, k: int, data = None):
         """
         Utiliza os dados passados na instanciação para calcular os centroides.
 
@@ -19,6 +19,8 @@ class KMeansClustering(object):
         `k`: número de clusters a serem formados nos dados.
         `max_iter`: número de iterações a serem realizadas no algoritmo. Default = 20.
         """
+        if data is None:
+            raise ValueError('Não foi passado um conjunto de dados para o treinamento')
 
         if not k >= 2:
             raise ValueError(f'O valor de "k" deve ser maior ou igual a 2. Valor passado: {k}')
@@ -27,14 +29,14 @@ class KMeansClustering(object):
         if self._centroids != None:
             self._centroids = None
 
-        self.set_initial_centroids(k = k, size = len(self._data))
+        self.__set_initial_centroids(k = k, data = data)
 
         # inicializa os clusters (inicialmente todos estão vazios)
         cluster_objects = {c: [] for c in range(k)}
 
-        for _ in range(max_iter):
+        for _ in range(self._max_iter):
 
-            for obj in self._data:
+            for obj in data:
 
                 #calcula a distancia do objeto para todos os centroides
                 distancias = np.array([dist(obj, c) for c in self._centroids])
@@ -43,17 +45,17 @@ class KMeansClustering(object):
                 cluster_objects[ distancias.argmin() ].append(obj)
 
             # atualiza os centroides calculando a média de cada atributos que está em cada cluster
-            self.update_centroids(cluster_objects)
+            self.__update_centroids(cluster_objects)
 
         return self._centroids
 
-    def set_initial_centroids(self, k, size):
+    def __set_initial_centroids(self, k, data):
         """
         Obtém os centroides iniciais escolhendo aleatoriamente uma objeto para cada
         centroide.
         """
 
-        self._centroids = [self._data[i] for i in random.sample(range(0, size), k)]
+        self._centroids = [data[i] for i in random.sample(range(0, len(data) - 1), k)]
 
     def predict(self, data):
         """
@@ -75,7 +77,7 @@ class KMeansClustering(object):
 
         return correspondent_cluster
 
-    def update_centroids(self, cluster_objects):
+    def __update_centroids(self, cluster_objects):
         """
         Atualiza os centroides calculando a média de cada um dos atributos
         para todos os elementos que estão em cada cluster.
@@ -85,8 +87,13 @@ class KMeansClustering(object):
             self._centroids[idx] = np.mean(cluster_objects[idx], axis = 0)
 
     def get_centroids(self):
+        """
+        Returna os centroides encontrados para o conjunto e dados passad no método
+        'fit' do objeto.
+
+        Returna
+        -----------
+        `_centroids`: lista com os valores relativos a cada um dos atributos de cada centroides.
+        """
+
         return self._centroids
-
-
-    def get_data(self):
-            return self._data
