@@ -11,14 +11,15 @@ class KMeansClustering(object):
 
     def fit(self, k: int, data = None):
         """
-        Utiliza os dados passados na instanciação para calcular os centroides.
+        Treina o clusterizador com os dados passados em 'data'
 
         Parametros
         -------------
 
         `k`: número de clusters a serem formados nos dados.
-        `max_iter`: número de iterações a serem realizadas no algoritmo. Default = 20.
+        `data`: conjunot de dados utilizado no treinamento modelo.
         """
+
         if data is None:
             raise ValueError('Não foi passado um conjunto de dados para o treinamento')
 
