@@ -45,7 +45,7 @@ class SingleLinkClustering(object):
         while len(clusters) >= k_min:
 
             if self._verbose:
-                print(f'K = {len(clusters)}')
+                print(f'K = {len(clusters)}', end = ' ')
                 start = perf_counter()
 
             if len(clusters) <= k_max:
@@ -62,7 +62,7 @@ class SingleLinkClustering(object):
 
             if self._verbose:
                 end = perf_counter()
-                print(f' {end - start}s')
+                print(f'{end - start:.3f}s')
 
         return predictions
 

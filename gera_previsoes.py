@@ -24,7 +24,7 @@ def save_predictions(ids: list, pred: list, dataset: str, k: int, alg: str, dest
 
     pred_to_save = pd.DataFrame().from_dict({
         'id': ids,
-        'labels': pred,
+        'label': pred,
     })
 
     pred_to_save.to_csv(f'./{dest_dir}/{alg}_k({k})_{dataset}.csv', index = False)
@@ -32,9 +32,9 @@ def save_predictions(ids: list, pred: list, dataset: str, k: int, alg: str, dest
 if __name__ == '__main__':
 
     datasets = {
-        'c2ds1':  pd.read_csv('datasets/c2ds1-2sp.txt', sep = '\t').sample(frac = 0.01),
-        'c2ds3':  pd.read_csv('datasets/c2ds3-2g.txt', sep = '\t').sample(frac = 0.01),
-        'monkey': pd.read_csv('datasets/monkey.txt', sep = '\t').sample(frac = 0.01)
+        'c2ds1-2sp':  pd.read_csv('datasets/c2ds1-2sp.txt', sep = '\t'),
+        'c2ds3-2g':  pd.read_csv('datasets/c2ds3-2g.txt', sep = '\t'),
+        'monkey': pd.read_csv('datasets/monkey.txt', sep = '\t')
     }
 
     #
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     km_clf = KMC(max_iter = 20)
 
     # K entre 2 e 5 nos dois primeiros datasets
-    for key in ['c2ds1', 'c2ds3']:
+    for key in ['c2ds1-2sp', 'c2ds3-2g']:
 
         for k in range(2, 6):
 
@@ -72,6 +72,7 @@ if __name__ == '__main__':
                          alg = 'kmeans',
                          dest_dir = 'previsoes')
 
+    exit()
     #
     #
     # classificação utilizando o Single Link
@@ -80,7 +81,7 @@ if __name__ == '__main__':
     sl_clf = SLK(verbose = True)
 
     # K entre 2 e 5 nos dois primeiros datasets
-    for key in ['c2ds1', 'c2ds3']:
+    for key in ['c2ds1-2sp', 'c2ds3-2g']:
 
         predictions = sl_clf.fit_predict(data = datasets[key][['d1', 'd2']].values,
                                          k_min = 2,
