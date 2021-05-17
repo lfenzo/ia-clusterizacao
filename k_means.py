@@ -73,7 +73,7 @@ class KMeansClustering(object):
         centroide.
         """
 
-        self._centroids = [data[i] for i in random.sample(range(0, len(data) - 1), k)]
+        self._centroids = [data[i] for i in random.sample(range(0, len(data)), k)]
 
     def predict(self, data):
         """
@@ -91,7 +91,7 @@ class KMeansClustering(object):
         for obj in data:
 
             distancias = np.array([dist(obj, c) for c in self._centroids])
-            correspondent_cluster.append( distancias.argmin() + 1 )
+            correspondent_cluster.append( distancias.argmin() )
 
         return correspondent_cluster
 

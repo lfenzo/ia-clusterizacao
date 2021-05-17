@@ -10,8 +10,12 @@ Integrantes:    Enzo Laragnoit Fernandes        759641
 import numpy as np
 
 from utils import dist
+from time import perf_counter
 
 class SingleLinkClustering(object):
+
+    def __init__(self, verbose = False):
+        self._verbose = verbose
 
     def fit_predict(self, k_min: int, k_max: int, data = None):
         """
@@ -31,11 +35,18 @@ class SingleLinkClustering(object):
         if k_min >= k_max:
             raise ValueError(f'Verifique os valores de `k_min` e `k_max` Valores passados: {k_min}, {k_max}.')
 
-        clusters = { idx: [obj] for idx, obj in enumerate(data) }
+        if self._verbose:
+            print('Iniciando Treinamento...')
+
         predictions = {}
+        clusters = { idx: [obj] for idx, obj in enumerate(data) }
 
         # realiza o agrupamento dos objetos no número de clusters desejados
         while len(clusters) >= k_min:
+
+            if self._verbose:
+                print(f'K = {len(clusters)}')
+                start = perf_counter()
 
             if len(clusters) <= k_max:
                 # após realizar a clusterização classifique cada uma dos objetos em 'data'
@@ -48,6 +59,10 @@ class SingleLinkClustering(object):
             idx_from, idx_to = self.__closest_clusters(distances)
 
             self.__update_clusters(idx_from, idx_to, clusters)
+
+            if self._verbose:
+                end = perf_counter()
+                print(f' {end - start}s')
 
         return predictions
 
@@ -75,7 +90,7 @@ class SingleLinkClustering(object):
         original_pred_labels = sorted(set(pred))
 
         for idx, label in enumerate(original_pred_labels):
-            matching[label] = idx + 1
+            matching[label] = idx
 
         for i in range(len(pred)):
             pred[i] = matching[ pred[i] ]
