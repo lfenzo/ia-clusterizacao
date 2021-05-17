@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from k_means import KMeansClustering as KMC
 from single_link import SingleLinkClustering as SLK
 
+
 def save_predictions(ids: list, pred: list, dataset: str, k: int, alg: str, dest_dir: str):
     """
     Salva as classificações realizadas.
@@ -29,12 +30,13 @@ def save_predictions(ids: list, pred: list, dataset: str, k: int, alg: str, dest
 
     pred_to_save.to_csv(f'./{dest_dir}/{alg}_k({k})_{dataset}.csv', index = False)
 
+
 if __name__ == '__main__':
 
     datasets = {
-        'c2ds1-2sp':  pd.read_csv('datasets/c2ds1-2sp.txt', sep = '\t'),
-        'c2ds3-2g':  pd.read_csv('datasets/c2ds3-2g.txt', sep = '\t'),
-        'monkey': pd.read_csv('datasets/monkey.txt', sep = '\t')
+        'c2ds1-2sp':  pd.read_csv('datasets/c2ds1-2sp.txt', sep = '\t').sample(frac = 0.01),
+        'c2ds3-2g':  pd.read_csv('datasets/c2ds3-2g.txt', sep = '\t').sample(frac = 0.01),
+        'monkey': pd.read_csv('datasets/monkey.txt', sep = '\t').sample(frac = 0.01)
     }
 
     #
@@ -72,7 +74,6 @@ if __name__ == '__main__':
                          alg = 'kmeans',
                          dest_dir = 'previsoes')
 
-    exit()
     #
     #
     # classificação utilizando o Single Link
@@ -105,7 +106,7 @@ if __name__ == '__main__':
 
         save_predictions(ids = datasets['monkey']['sample_label'].to_list(),
                          pred = pred,
-                         dataset = key,
+                         dataset = 'monkey',
                          k = k,
                          alg = 'singlelink',
                          dest_dir = 'previsoes')
