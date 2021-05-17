@@ -1,3 +1,12 @@
+"""
+Atividade IV - Inteligência Artificial
+Implementação dos Algoritmos K-Means e Single Link
+
+Integrantes:    Enzo Laragnoit Fernandes        759641
+                Gabriel Viana Teixeira          795465
+                Guilherme Pereira Fantini       795468
+"""
+
 import random
 import numpy as np
 
@@ -6,6 +15,14 @@ from utils import dist
 class KMeansClustering(object):
 
     def __init__(self, max_iter = 20):
+        """
+        Construtor do objeto.
+
+        Parametros
+        --------------
+        `max_iter`: número máximo de iterações a serem executadas durante o treinamento.
+        """
+
         self._centroids = None
         self._max_iter = max_iter
 
@@ -17,7 +34,7 @@ class KMeansClustering(object):
         -------------
 
         `k`: número de clusters a serem formados nos dados.
-        `data`: conjunot de dados utilizado no treinamento modelo.
+        `data`: conjunto de dados utilizado no treinamento modelo.
         """
 
         if data is None:
@@ -74,7 +91,7 @@ class KMeansClustering(object):
         for obj in data:
 
             distancias = np.array([dist(obj, c) for c in self._centroids])
-            correspondent_cluster.append( distancias.argmin() )
+            correspondent_cluster.append( distancias.argmin() + 1 )
 
         return correspondent_cluster
 

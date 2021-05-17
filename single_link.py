@@ -1,33 +1,45 @@
+"""
+Atividade IV - Inteligência Artificial
+Implementação dos Algoritmos K-Means e Single Link
+
+Integrantes:    Enzo Laragnoit Fernandes        759641
+                Gabriel Viana Teixeira          795465
+                Guilherme Pereira Fantini       795468
+"""
+
 import numpy as np
 
 from utils import dist
 
 class SingleLinkClustering(object):
 
-    def __init__(self):
-        ...
-
-    def fit_predict(self, k: int, data = None):
+    def fit_predict(self, k_min: int, k_max: int, data = None):
         """
         Treina o clusterizador com os dados passados em 'data' e já realiza a classificação.
 
         Parametros
         -------------
 
-        `k`: número de clusters a serem formados nos dados.
+        `k_min`: número mínimo de partições produzidas (inclusive).
+        `k_max`: número máximo de particões produzidas (inclusive).
         `data`: conjunot de dados utilizado no treinamento modelo.
         """
 
         if data is None:
             raise ValueError('Não foi passado um conjunto de dados para o treinamento')
 
-        if not k >= 2:
-            raise ValueError(f'O valor de "k" deve ser maior ou igual a 2. Valor passado: {k}')
+        if k_min >= k_max:
+            raise ValueError(f'Verifique os valores de `k_min` e `k_max` Valores passados: {k_min}, {k_max}.')
 
         clusters = { idx: [obj] for idx, obj in enumerate(data) }
+        predictions = {}
 
         # realiza o agrupamento dos objetos no número de clusters desejados
-        while len(clusters) > k:
+        while len(clusters) >= k_min:
+
+            if len(clusters) <= k_max:
+                # após realizar a clusterização classifique cada uma dos objetos em 'data'
+                predictions[ len(clusters) ] = self.__sanitize_predictions( self.__predict(data, clusters) )
 
             # distancia dos clusters, todos para todos
             distances = self.__cluster_distances(clusters)
@@ -35,29 +47,48 @@ class SingleLinkClustering(object):
             # obtem quais são os clusters mais proximos um do outro considerando a distancia single-link
             idx_from, idx_to = self.__closest_clusters(distances)
 
-            # atualizar os clusters juntando os dois clusterws mais proximos
             self.__update_clusters(idx_from, idx_to, clusters)
 
-    def __predict(self, data, clusters):
+        return predictions
+
+    def __predict(self, data, clusters) -> list:
+        """
+        Classifica as observações passadas em 'data'.
+
+        Retorna
+        --------------
+        'correspondent_cluster': lista contendo a associação de cada objeto a um cluster
+        """
 
         correspondent_cluster = []
 
         for obj in data:
             for key, values in clusters.items():
-                if obj in values[0]:
+                if all(np.isin(obj, values)):
                     correspondent_cluster.append(key)
 
         return correspondent_cluster
 
+    def __sanitize_predictions(self, pred) -> list:
+
+        matching = {}
+        original_pred_labels = sorted(set(pred))
+
+        for idx, label in enumerate(original_pred_labels):
+            matching[label] = idx + 1
+
+        for i in range(len(pred)):
+            pred[i] = matching[ pred[i] ]
+
+        return pred
 
     def __update_clusters(self, merge_from, merge_to, clusters):
         """
-        Realiza a união entre os objetos de um cluster com o outro
-
+        Realiza a união entre os objetos do cluster cujos ids são 'merge_to'
+        e 'merge_from'.
         """
 
-        return clusters[merge_from].extend( clusters.pop(merge_to) )
-
+        return clusters[merge_to].extend( clusters.pop(merge_from) )
 
     def __closest_clusters(self, distances: dict) -> (int, int):
         """
