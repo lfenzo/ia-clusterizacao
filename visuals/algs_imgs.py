@@ -16,7 +16,7 @@ def get_k_count(filename):
     return int(filename.split('(')[1].split(')')[0])
 
 
-def load_classifications(dataset_prefix, alg) -> dict:
+def load_classifications(dataset_prefix, alg, perf_dataset) -> dict:
     """
     Obtem todos os dataframes relativos ao algoritmo e ao conjunto de dados especificados
     """
@@ -35,17 +35,25 @@ def load_classifications(dataset_prefix, alg) -> dict:
     for file in pred_data_files:
 
         df_pred = pd.read_csv(f'../previsoes/{file}')
-        df_ref  = pd.read_csv(f'../datasets/{reference_file}', sep = '\t')
+        df_ref  = pd.read_csv(f'../datasets/{reference_file}',
+                              sep = '\t',
+                              names = ['sample_label', 'd1', 'd2'],
+                              skiprows = 1)
+
+        selected_perf_row = perf_dataset[ (perf_dataset['k'] == get_k_count(file)) &
+                                          (perf_dataset['alg'] == alg) &
+                                          (perf_dataset['dataset'] == dataset_prefix) ]
 
         dataframes.append({
             'k': get_k_count(file),
+            'perf': selected_perf_row.rand.values,
             'info': pd.merge(df_pred, df_ref,
                              how = 'inner',
                              left_on = 'id',
                              right_on = 'sample_label')
         })
 
-    return dataframes
+    return sorted(dataframes, key = lambda item: item['k'])
 
 
 if __name__ == '__main__':
@@ -54,28 +62,38 @@ if __name__ == '__main__':
 
     for alg in perf_data['alg'].unique():
 
-        for dataset_prefix in ['c2ds1', 'c2ds3', 'monkey']:
+        for dataset_prefix in ['c2ds1-2sp', 'c2ds3-2g', 'monkey']:
 
-            alg_dataset = load_classifications(dataset_prefix, alg)
+            alg_dataset = load_classifications(dataset_prefix, alg, perf_data)
+            n_rows, n_cols, aspect = (2, 2, (6.7, 6.7)) if dataset_prefix != 'monkey' else (3, 3, (6.7, 5.5))
 
-            if dataset_prefix != 'monkey':
+            fig, axs = plt.subplots(n_rows, n_cols, figsize = aspect, dpi = 120)
 
-                fig, axs = plt.subplots(2, 2, figsize = (6.7, 6.7), dpi = 120)
+            for i in range(n_rows):
+                for j in range(n_cols):
 
-                for i in range(2):
-                    for j in range(2):
+                    try:
 
                         plot_info = alg_dataset.pop(0)
 
                         axs[i, j].scatter(plot_info['info']['d1'].values, plot_info['info']['d2'].values,
                                           c = plot_info['info']['label'],
-                                          s = 12)
+                                          cmap = 'plasma',
+                                          s = 5)
 
-                        axs[i, j].set_title(plot_info['k'])
+                        axs[i, j].set_title(f'$k = {plot_info["k"]}$ IRA: {plot_info["perf"][0]}', fontsize = 10)
 
-                fig.savefig('coisa.jpeg')
+                        axs[i, j].tick_params(axis = 'x', which = 'both', bottom = False,
+                                    top = False, labelbottom = False)
 
-            else:
+                        axs[i, j].tick_params(axis = 'y', which = 'both', right = False,
+                                    left = False, labelleft = False)
 
-                pass
+                    except IndexError as e:
 
+                        axs[i, j].axis('off')
+
+            fig.suptitle(f'{alg.title()} no Conjunto {dataset_prefix.title()}')
+            fig.tight_layout()
+
+            fig.savefig(f'{alg}_{dataset_prefix}.jpeg', bbox_inches = 'tight')
