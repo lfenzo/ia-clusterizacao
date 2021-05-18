@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
             for file in corr_pred_files:
 
-                real = pd.read_csv(f'./datasets/{reference_file}', sep = '\t', names = ['id', 'label']).sample(frac = 0.01)
+                real = pd.read_csv(f'./datasets/{reference_file}', sep = '\t', names = ['id', 'label'])
                 pred = pd.read_csv(f'./previsoes/{file}')
 
                 real_array = real[['label']].values.ravel()
@@ -54,9 +54,8 @@ if __name__ == '__main__':
                 perf_info['alg'].append(alg)
                 perf_info['dataset'].append(dataset_prefix)
                 perf_info['k'].append(k_count)
-                perf_info['rand'].append(rand)
+                perf_info['rand'].append(round(rand, 4))
 
     perf_report = pd.DataFrame().from_dict(perf_info)
     perf_report.to_csv('performance_report.csv', index = False)
-    print(perf_report)
 
