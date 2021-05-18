@@ -115,14 +115,15 @@ if __name__ == '__main__':
                              pred = pred,
                              dataset = key,
                              k = k,
-                             alg = 'singlelink', dest_dir = 'previsoes')
+                             alg = 'singlelink',
+                             dest_dir = 'previsoes')
 
     if args['verbose']:
         print(f'Treinamento com SingleLink no conjunto \'monkey\', k entre 5 e 12')
 
     predictions = sl_clf.fit_predict(data = datasets['monkey'][['D1', 'D2']].values,
                                      k_min = 2,
-                                     k_max = 13)
+                                     k_max = 12)
 
     for k, pred in predictions.items():
 
