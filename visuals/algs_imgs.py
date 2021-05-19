@@ -9,8 +9,10 @@ Integrantes:    Enzo Laragnoit Fernandes        759641
 
 import os
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+mpl.use('pgf')
 
 def get_k_count(filename):
     return int(filename.split('(')[1].split(')')[0])
@@ -97,3 +99,4 @@ if __name__ == '__main__':
             fig.tight_layout()
 
             fig.savefig(f'{alg}_{dataset_prefix}.jpeg', bbox_inches = 'tight')
+            fig.savefig(f'{alg}_{dataset_prefix}.pgf', bbox_inches = 'tight', format = 'pgf')
